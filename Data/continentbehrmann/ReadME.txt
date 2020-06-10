@@ -1,0 +1,1 @@
+Continent shapefile (ESRI, 2002) reprojected to an equal-area Behrmann projection.

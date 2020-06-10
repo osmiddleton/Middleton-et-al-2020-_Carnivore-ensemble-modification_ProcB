@@ -1,0 +1,1 @@
+Trait data downloaded from the Phylacine (v.1.2) repository.
