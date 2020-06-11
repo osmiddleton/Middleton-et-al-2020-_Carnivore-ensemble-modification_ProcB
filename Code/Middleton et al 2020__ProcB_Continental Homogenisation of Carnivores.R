@@ -115,20 +115,22 @@ good.colours.2 <- c("#66CC99","#FFCC00","#CC99CC","#CCCC99","#99CCFF","#FFCC99")
 # Species-site matrices: current and present-natural
 
 # Download these datasets from DRYAD.
+
 # Note: These analyses were performed using Phylacine Version 1.2. If using this code for future analyses,
 # downloading the most recent version of Phylacine would be best as some geographic ranges may have been
 # updated.
 
 # The files are too large to upload to GitHub, so save in a folder behind the current working directory
-# in a folder called 'Phylacine_Range_Matrices'.
+# in the directories: DRYAD Data > Phylacine_Range_Matrices to mensure this code runs.
 
 # Load species-site matrices 
-current.range.full <- read.csv("../Phylacine_Range_Matrices/Current_Species_Matrix.csv",
+current.range.full <- read.csv("../DRYAD Data/Phylacine_Range_Matrices/Current_Species_Matrix.csv",
                                header = TRUE)
-presnat.range.full <- read.csv("../Phylacine_Range_Matrices/PN_Species_Matrix.csv",
+presnat.range.full <- read.csv("../DRYAD Data/Phylacine_Range_Matrices/PN_Species_Matrix.csv",
                                header = TRUE)
 
-# Phylacine functional trait data (pre-downloaded)
+# Phylacine functional trait data (pre-downloaded and stored in GitHub)
+# Note: Phylacine has since been updated and may have different functional traits now.
 
 # Load trait data
 traits <- read.csv("./Data/Phylacine_Traits/Trait_data.csv", header = TRUE)
@@ -238,12 +240,9 @@ dev.off()
 #————————————————————————————————————————————————————————————————————————————————————————————####
 
 # Note: The results of MCMCglmms can vary each time, and so re-running these models would produce 
-# slightly different results to what is reported in the manuscript. 
+#       slightly different values of effect size and CIs to what is reported in the manuscript.
 
-# As such, we have stored results from our analyses on Github.
-
-# To re-run the analyses here, these would need to be deleted from the repository to save the 
-# results from each MCMCglmm iteration.
+# An example of the model predictions from these models is available on DRYAD. 
 
 # ---- Data preparation ----
 
@@ -322,10 +321,10 @@ nrow(spec %>% filter(IUCN.Status.1.2 == "EX")) # 5 species
 
 
 # Download phylogenies from Phylacine and save in the same folder as the folder containing 
-# Phylacine range matrices.
+# DRYAD Data folder.
 
 # Load species' phylogeny.
-trees <- read.nexus("../Phylogenies/Complete_phylogeny.nex")
+trees <- read.nexus("../Complete_phylogeny.nex")
 tree_samp <- sample(trees, size = 100) # This will be random every time.
 
 # Prune tree to only the species list being used in this study
@@ -392,6 +391,8 @@ class(mulTree_data) ; names(mulTree_data)
 
 
 # ---- Hierarchical model running ----
+
+# Note: These models do take hours to run.
 
 # Create list to store the DIC outputs
 DIC.list <- list()
@@ -490,7 +491,7 @@ for(i in 1:length(pruned.forest[1:100])) {
 
 DIC.list[[4]] <- DICs
 
-# Identify which of the models is the best - lowest average DIC values
+# The model with the interaction between diet and body mass was the best-supported model.
 # The DIC value can be interpreted in a similar way to an AIC value
 lapply(DIC.list, quantile)
 lapply(DIC.list,mean)
@@ -498,11 +499,9 @@ lapply(DIC.list,mean)
 
 # ---- Diagnostic plots -----
 
-# Model 1 was the best-supported model: interaction between body mass and
-# vertebrate consumption.
-
 # re-set working directory
 setwd("../../..")
+
 setwd("./Results/MCMCglmm chain outputs/Model1")
 chain.1 <- read.mulTree(paste0("range_loss-tree","20","_chain1"),
                   model = TRUE)
@@ -580,6 +579,9 @@ acf(chain.1$VCV[, 2], lag.max = 20)
 
 # ---- Model predictions on raw data ----
 
+# To get predictions for on raw data, follow this code.
+# Skip to line 645 if you want to recreate the figure and look at model output example.
+
 # Reading all the models to perform the MCMCglmm analysis on multiple trees
 all_models <- read.mulTree("range_loss") 
 str(all_models)
@@ -640,7 +642,7 @@ spec$ProportionalPredictedLossUpper <- spec$PredictedLossUpper/spec$PresnatRange
 
 # Read the model predictions in
 setwd("../../../")
-spec <- read.csv("./Results/MCMCglmm chain outputs/Model1 predictions on raw data.csv", header = TRUE)
+spec <- read.csv("../DRYAD Data/BBPMM_Predictions/Model1 predictions on raw data.csv", header = TRUE)
 
 # Create new factor of carnivore categories
 spec$vert.cat <- NA
@@ -935,7 +937,6 @@ FD.Continents.no.GR$Region.names <- as.factor(FD.Continents.no.GR$Region.names)
 FD.Continents.no.GR$Method <- "P/A"
 FD.Continents.no.GR$Region <- "Continent"
 colnames(FD.Continents.no.GR)[1:3] <- c("SR","FRic","FDis")
-
 
 
 #————————————————————————————————————————————————————————————————————————————————————————————####
@@ -1252,13 +1253,10 @@ pdf("./Results/Figures/Continental_Trait Space_GeographicRange.pdf", height = 4,
                     size = .1, alpha = .5) +
     scale_fill_manual(values = c("#339900","#660000")) +
     scale_colour_manual(values = c("#339900","#660000")) +
-    #scale_colour_manual(values = c("#999999","#000000")) +
     geom_point(data = centroids, aes(x = A1, y = A2, colour = Scenario), 
                size = 2, alpha = 1, shape = 3, stroke = 2) +
     geom_polygon(data = master.hullage, aes(x = A1, y = A2, colour = scenarios), 
                  alpha = 0, size = 0.6, linetype = 2) +
-    #scale_fill_discrete(guide = FALSE) +
-    #scale_colour_discrete(guide = FALSE) +
   theme_bw() +
   theme(legend.position = "none",
         panel.grid=element_blank(),
@@ -1286,7 +1284,7 @@ ggarrange(g,
 dev.off()
 
 
-# ---- 2. Continental WITHOUT Geographic Range ----
+# ---- 2. Continental without Geographic Range ----
 str(carnivore.continent.presence)
 carnivore.continent.presence$Scenario <- c("Present-Natural","Present-Natural","Present-Natural","Present-Natural","Present-Natural","Present-Natural",
                                            "Current","Current","Current","Current","Current","Current")
@@ -1348,14 +1346,16 @@ for (i in strip_t) {
   k <- k+1
 }
 grid.draw(g.pa)
-
 dev.off()
+
+ggarrange(g.pa)
 
 #————————————————————————————————————————————————————————————————————————————————————————————####
 # ----  7. Functional diversity changes ----
 #————————————————————————————————————————————————————————————————————————————————————————————####
 # First step, tidy data which I apparently have not done
-Master.Global.FD.Regions <- rbind(FD.Continents.GR,FD.Continents.no.GR)
+Master.Global.FD.Regions <- rbind(FD.Continents.GR,
+                                  FD.Continents.no.GR)
 
 # Paired Wilcoxon signed-rank test for difference between PN and current for:
 #  1. Functional richness
@@ -1369,12 +1369,14 @@ median(fric.change)
 
 # Wilcox signed-rank test:
 fric.change <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
-wilcox.test(fric.change[fric.change$Scenario == "Present-Natural",]$FRic,fric.change[fric.change$Scenario == "Current",]$FRic, 
-            paired = TRUE, alternate = "less")
 
-sum(rank(fric.change[fric.change$Scenario == "Present-Natural",]$FRic - 
-     fric.change[fric.change$Scenario == "Current",]$FRic))
+test <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+           value = c(fric.change[fric.change$Scenario == "Present-Natural",]$FRic,
+                     fric.change[fric.change$Scenario == "Current",]$FRic))
 
+wilcoxsign_test(value ~ scenario,
+                data = test,
+                alternative = "less")
 
 # Get the relative change in functional richness (% lost from PN)
 fric.change <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
@@ -1390,8 +1392,11 @@ median(fdis.change.gr)
 
 # Wilcox signed-rank test:
 fdis.change.gr <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "Geographic Range",]
-wilcox.test(fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FRic,fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FRic, 
-            paired = TRUE, alternate = "less")
+
+test2 <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+                   value = c(fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FDis,
+                             fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FDis))
+wilcoxsign_test(value ~ scenario, data = test2, alternative = "less")
 
 # Relative change
 fdis.change.gr <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "Geographic Range",]
@@ -1406,9 +1411,11 @@ fdis.change.pa <- fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis - f
 
 # Wilcox signed-rank test:
 fdis.change.pa <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
-wilcox.test(fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis,
-            fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis,
-            paired=TRUE)
+
+test3 <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+                   value = c(fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis,
+                             fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis))
+wilcoxsign_test(value ~ scenario, data = test3, alternative = "less")
 
 
 fdis.change.pa <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
@@ -1478,6 +1485,7 @@ ggarrange(p1 + theme(legend.position="none",
           labels = c("b","c"),
           ncol = 2, nrow = 1)
 dev.off()
+
 
 #————————————————————————————————————————————————————————————————————————————————————————————####
 #  ---- 8. Centroid magnitude shift from PN to current ----
@@ -1576,7 +1584,7 @@ Master.Centroid.Shift$Method <- factor(Master.Centroid.Shift$Method, levels = c(
 Master.centroid.position.change$Method <- factor(Master.centroid.position.change$Method, levels = c("Presence/Absence","Geographical Range"))
 
 
-# ---- Analyses ---- 
+# ---- Statistics ---- 
 
 # 1. KW Test: change between principle coordinate axes (pool methods)
 
@@ -1593,25 +1601,43 @@ kruskal.test(Master.Centroid.Shift.GR$Change, Master.Centroid.Shift.GR$A)
 dunn.test(Master.Centroid.Shift.GR$Change,Master.Centroid.Shift.GR$A)
 
 
-
 # 2. MW Tests: changes within principle components - comparing methods 
 
 # PCoA 1
 wilcox.test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A1, Master.centroid.position.change$Method, median)
+
+# Find the U-value
+# U = n1n2  +  n2(n2+1)/2  – R2 
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A1)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A1)[7:12]))
+
 
 # PCoA 2
 wilcox.test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A2, Master.centroid.position.change$Method, median)
+
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A2)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A2)[7:12]))
 
 # PCoA 3
 wilcox.test(Master.centroid.position.change$Change.A3 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A3 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A3, Master.centroid.position.change$Method, median)
+
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A3)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A3)[7:12]))
+
 
 # PCoA 4
 wilcox.test(Master.centroid.position.change$Change.A4 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A4 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A4, Master.centroid.position.change$Method, median)
 
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A4)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A4)[7:12]))
 
 # ---- Figure 3: Magnitude of shifts in centroid ---- 
 
@@ -1626,11 +1652,6 @@ Master.Centroid.Shift$Method <- factor(reorder(Master.Centroid.Shift$Method, lev
 
 # Main plot
 (p2 <- ggplot(Master.Centroid.Shift, aes(x=reorder(A, desc(A)), y = Change, group = Method, shape = Method)) +
-    # stat_summary(fun.data=median_hilow,
-    # stat_summary(fun.y = "mean", 
-    #              fun.ymin = function(x) mean(x) - sd(x), 
-    #             fun.ymax = function(x) mean(x) + sd(x), 
-    #              geom = "pointrange", position = position_dodge(width = 0.9), size = 1) +
     geom_hline(yintercept = 0, linetype = "dashed", size = 0.5,
                alpha = 0.5, colour = "black") +
     geom_point(aes(fill = Continent),
@@ -1656,7 +1677,6 @@ Master.Centroid.Shift$Method <- factor(reorder(Master.Centroid.Shift$Method, lev
           legend.text = element_text(size = 15),
           panel.grid = element_blank()) +
     geom_vline(xintercept = c(1.5,2.5,3.5), colour = "black") +
-    #geom_vline(xintercept = c(1,2,3,4), colour = "grey", linetype = 2) +
     xlab("Principal coordinate axis") + ylab("Centroid shift") +
     ylim(-0.15,0.08))
 
@@ -2386,8 +2406,6 @@ dev.off()
 # ---- 4. Continental trait space with systematically-checked species -----
 
 # ---- A. Continental with geographic range ----
-
-
 # Get species range per continent
 carnivore.continent.range$Scenario <- c("Present-Natural","Present-Natural","Present-Natural","Present-Natural","Present-Natural","Present-Natural",
                                         "Current","Current","Current","Current","Current","Current")
@@ -2532,7 +2550,6 @@ centroids.No.GR <- centroids.No.GR[c(1:3, 6, 9,12)]
 colnames(centroids.No.GR)[3:6] <- c("A1","A2","A3","A4")
 
 
-
 # plot centroids.No.GR on each plot
 tiff("./Results/Supplementary materials/Figures/Continental_Trait Space.No.GR_Systematic species.tif", height = 3700, width = 6830, res = 800)
 p <- ggplot(carnivore.continent.presence.long.taxonomy, aes(x=A1, y = A2, colour = Scenario, size = Range.Size)) +
@@ -2575,10 +2592,15 @@ fric.change <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A"
 fric.change <- fric.change[fric.change$Scenario == "Current",]$FRic - fric.change[fric.change$Scenario == "Present-Natural",]$FRic
 median(fric.change)
 
+
 # Wilcox test:
 fric.change <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
-wilcox.test(fric.change[fric.change$Scenario == "Present-Natural",]$FRic,fric.change[fric.change$Scenario == "Current",]$FRic, 
-            paired = TRUE, alternate = "less")
+
+test <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+                   value = c(fric.change[fric.change$Scenario == "Present-Natural",]$FRic,
+                             fric.change[fric.change$Scenario == "Current",]$FRic))
+wilcoxsign_test(test$value ~ test$scenario, alternative = "less")
+
 
 # Get the relative change in functional richness (% lost from PN)
 fric.change <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
@@ -2592,29 +2614,37 @@ fdis.change.gr <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "G
 fdis.change.gr <- fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FDis - fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FDis
 median(fdis.change.gr)
 
-# Wilcoxon test to be safe
+# Wilcoxon test:
 fdis.change.gr <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "Geographic Range",]
-wilcox.test(fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FRic,fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FRic, 
-            paired = TRUE, alternate = "less")
+
+test <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+                   value = c(fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FDis,
+                             fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FDis))
+wilcoxsign_test(test$value ~ test$scenario, alternative = "less")
 
 # Relative change
 fdis.change.gr <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "Geographic Range",]
 fdis.change.gr <- (fdis.change.gr[fdis.change.gr$Scenario == "Current",]$FDis - fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FDis)/fdis.change.gr[fdis.change.gr$Scenario == "Present-Natural",]$FDis
 median(fdis.change.gr)
 
+
 # ---- 2b. Functional dispersion without geographic range ----
 fdis.change.pa <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
 fdis.change.pa <- fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis - fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis
 
-# Wilcoxon test to be safe
+# Wilcoxon tests:
 fdis.change.pa <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
-wilcox.test(fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis,
-            fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis,
-            paired=TRUE)
+
+test <- data.frame(scenario = c("PN","PN","PN","PN","PN","PN", "C","C","C","C","C","C"),
+                   value = c(fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis,
+                             fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis))
+wilcoxsign_test(test$value ~ test$scenario, alternative = "less")
+
 
 fdis.change.pa <- Master.Global.FD.Regions[Master.Global.FD.Regions$Method == "P/A",]
 fdis.change.pa <- (fdis.change.pa[fdis.change.pa$Scenario == "Current",]$FDis - fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis)/fdis.change.pa[fdis.change.pa$Scenario == "Present-Natural",]$FDis
 median(fdis.change.pa)
+quantile(fdis.change.pa)
 
 # ---- Figure S10(b,c): Functional diversity differences -----
 FRic.Change.Continents <- Master.Global.FD.Regions[Master.Global.FD.Regions$Region == "Continent",]
@@ -2790,20 +2820,32 @@ dunn.test(Master.Centroid.Shift.GR$Change,Master.Centroid.Shift.GR$A)
 # 2. Change within principle components
 
 # PCoA1
-wilcox.test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A1, Master.centroid.position.change$Method, median)
 
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A1)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A1)[7:12]))
+
 # PCoA2
-wilcox.test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A2, Master.centroid.position.change$Method, median)
 
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A2)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A2)[7:12]))
+
 # PCoA3
-wilcox.test(Master.centroid.position.change$Change.A3 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A3 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A3, Master.centroid.position.change$Method, median)
 
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A3)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A3)[7:12]))
+
 # PCoA4
-wilcox.test(Master.centroid.position.change$Change.A4 ~ Master.centroid.position.change$Method)
+wilcox_test(Master.centroid.position.change$Change.A4 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A4, Master.centroid.position.change$Method, median)
+
+(u1 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A4)[1:6]))
+(u2 <- (6*6) + (6*(6+1))/2 - sum(rank(Master.centroid.position.change$Change.A4)[7:12]))
 
 # Plots
 good.colours <- c("#66CC99","#CC99CC","#99CCFF","#FFCC00","#CCCC99","#FFCC99")
