@@ -2,9 +2,9 @@
 #       
 #       ------------------------------------------------------------------------------#
 #       
-#       Middleton, O., Scharlemann, J.P.W. & Sandom, C., 2020. Global restrictions
-#       in the trophic complexity of carnivorous mammal ensembles by modern humans.
-#       Proceedings of the Royal Society B.
+#       Middleton, O., Scharlemann, J.P.W. & Sandom, C., 2020. Homogenisation of
+#       carnivorous mammal ensembles caused by global range reductions of large-bodied
+#       hypercarnivores during the late Quaternary. Proceedings of the Royal Society B.
 #       
 #       ------------------------------------------------------------------------------#
 #       
