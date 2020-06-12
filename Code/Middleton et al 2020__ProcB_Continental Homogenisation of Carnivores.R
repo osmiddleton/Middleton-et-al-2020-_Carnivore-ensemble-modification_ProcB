@@ -1604,7 +1604,6 @@ dunn.test(Master.Centroid.Shift.GR$Change,Master.Centroid.Shift.GR$A)
 # 2. MW Tests: changes within principle components - comparing methods 
 
 # PCoA 1
-wilcox.test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
 wilcox_test(Master.centroid.position.change$Change.A1 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A1, Master.centroid.position.change$Method, median)
 
@@ -1615,7 +1614,6 @@ tapply(Master.centroid.position.change$Change.A1, Master.centroid.position.chang
 
 
 # PCoA 2
-wilcox.test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
 wilcox_test(Master.centroid.position.change$Change.A2 ~ Master.centroid.position.change$Method)
 tapply(Master.centroid.position.change$Change.A2, Master.centroid.position.change$Method, median)
 
